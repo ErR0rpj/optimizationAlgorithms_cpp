@@ -81,48 +81,128 @@ void resetPointing(string ingredientNow, unordered_set<string> &ingredientsToInc
 
     includeIngredients(ingredientsToInclude, ingredient_negative);
     excludeIngredients(ingredientsToExclude, ingredient_positive);
-
-    cout << ingredientNow << "\n";
-    cout << "Customers Count: " << *customerCount << "\n";
-    outputTable(ingredient_positive, ingredient_negative, ingredient_total);
 }
 
-// code can be optimized with:
-// 1. using DP
-// 2. sorting total points map and using highest point first.
-void solution(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, unordered_set<string> ingredientsToInclude, unordered_set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
+void countCustomers(unordered_set<string> ingredientsToInclude, vector<string> customer_likes[], vector<string> customer_dislikes[], int customerCount, set<int> customersIneligible)
 {
+    int count = 0;
+    for (int i = 0; i < customers; i++)
+    {
+        bool approved = false;
+
+        if (customersIneligible.find(i) == customersIneligible.end())
+        {
+            for (int j = 0; j < customer_likes[i].size(); j++)
+            {
+                string ing = customer_likes[i][j];
+                if (ingredientsToInclude.find(ing) != ingredientsToInclude.end())
+                {
+                    approved = true;
+                }
+                else
+                {
+                    approved = false;
+                    break;
+                }
+            }
+
+            if (approved)
+            {
+                for (int j = 0; j < customer_dislikes[i].size(); j++)
+                {
+                    string ing = customer_dislikes[i][j];
+                    if (ingredientsToInclude.find(ing) != ingredientsToInclude.end())
+                    {
+                        approved = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (approved)
+        {
+            count++;
+        }
+    }
+
+    if (count > maxCustomers)
+    {
+        maxCustomers = count;
+        unordered_set<string>::iterator itr1;
+        copy(ingredientsToInclude.begin(), ingredientsToInclude.end(), inserter(ingredientsToTake, itr1));
+    }
+}
+
+void solutionWithout0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, unordered_set<string> ingredientsToInclude, unordered_set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
+{
+
     if (ingredientNow != "")
     {
         ingredientsToInclude.insert(ingredientNow);
         resetPointing(ingredientNow, ingredientsToInclude, ingredientsToExclude, ingredient_total, ingredient_positive, ingredient_negative, customersIneligible, &customerCount, customer_likes, customer_dislikes);
     }
 
-    cout << "Ingredients included\n";
-    for (unordered_set<string>::iterator i = ingredientsToInclude.begin(); i != ingredientsToInclude.end(); i++)
+    // Returns if total number of customer left are less than max customers till now.
+    if (customerCount <= maxCustomers)
     {
-        cout << *i << " ";
+        return;
     }
-    cout << "\n";
 
     for (unordered_map<string, int>::iterator i = ingredient_total.begin(); i != ingredient_total.end(); i++)
     {
         string ingredient = i->first;
         if (ingredient_total[ingredient] <= 0 || ingredientsToInclude.find(ingredient) != ingredientsToInclude.end() || ingredientsToExclude.find(ingredient) != ingredientsToExclude.end())
         {
+
             continue;
         }
 
-        solution(ingredient, ingredient_positive, ingredient_negative, ingredient_total, customersIneligible, customerCount, ingredientsToExclude, ingredientsToExclude, customer_likes, customer_dislikes);
+        solutionWithout0(ingredient, ingredient_positive, ingredient_negative, ingredient_total, customersIneligible, customerCount, ingredientsToInclude, ingredientsToExclude, customer_likes, customer_dislikes);
     }
+
+    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
+}
+
+// code can be optimized with:
+// 1. using DP
+// 2. sorting total points map and using highest point first.
+void solutionWith0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, unordered_set<string> ingredientsToInclude, unordered_set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
+{
+
+    if (ingredientNow != "")
+    {
+        ingredientsToInclude.insert(ingredientNow);
+        resetPointing(ingredientNow, ingredientsToInclude, ingredientsToExclude, ingredient_total, ingredient_positive, ingredient_negative, customersIneligible, &customerCount, customer_likes, customer_dislikes);
+    }
+
+    // Returns if total number of customer left are less than max customers till now.
+    if (customerCount <= maxCustomers)
+    {
+        return;
+    }
+
+    for (unordered_map<string, int>::iterator i = ingredient_total.begin(); i != ingredient_total.end(); i++)
+    {
+        string ingredient = i->first;
+        if (ingredient_total[ingredient] < 0 || ingredientsToInclude.find(ingredient) != ingredientsToInclude.end() || ingredientsToExclude.find(ingredient) != ingredientsToExclude.end())
+        {
+
+            continue;
+        }
+
+        solutionWith0(ingredient, ingredient_positive, ingredient_negative, ingredient_total, customersIneligible, customerCount, ingredientsToInclude, ingredientsToExclude, customer_likes, customer_dislikes);
+    }
+
+    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
 }
 
 int main()
 {
     ifstream input;
-    input.open("input_3.txt");
+    input.open("input_4.txt");
     ofstream output;
-    output.open("output_3.txt");
+    output.open("output_4.txt");
 
     input >> customers;
 
@@ -166,7 +246,7 @@ int main()
         }
     }
 
-    outputTable(ingredient_positive, ingredient_negative, ingredient_points);
+    // outputTable(ingredient_positive, ingredient_negative, ingredient_points);
 
     includeIngredients(ingredientsToTake, ingredient_negative);
     excludeIngredients(ingredientsNotToTake, ingredient_positive);
@@ -180,10 +260,11 @@ int main()
     copy(ingredientsNotToTake.begin(), ingredientsNotToTake.end(), inserter(tempIngredientsToExclude, itr2));
 
     set<int> customersIneligebile;
-    solution("byyii", ingredient_positive, ingredient_negative, ingredient_points, customersIneligebile, customers, tempIngredientsToInclude, tempIngredientsToExclude, customer_likes, customer_dislikes);
+
+    solutionWith0("", ingredient_positive, ingredient_negative, ingredient_points, customersIneligebile, customers, tempIngredientsToInclude, tempIngredientsToExclude, customer_likes, customer_dislikes);
+    // solutionWithout0("", ingredient_positive, ingredient_negative, ingredient_points, customersIneligebile, customers, tempIngredientsToInclude, tempIngredientsToExclude, customer_likes, customer_dislikes);
 
     cout << "\nMaximum customers: " << maxCustomers << "\n";
-
     output << ingredientsToTake.size();
     for (unordered_set<string>::iterator i = ingredientsToTake.begin(); i != ingredientsToTake.end(); i++)
     {
