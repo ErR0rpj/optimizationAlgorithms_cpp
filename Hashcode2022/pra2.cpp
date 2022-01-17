@@ -8,9 +8,11 @@ using namespace std;
 
 // dont considr incl, excl in next recurse
 
+// map<set<string>, int> dp;
+
 int customers;
-unordered_set<string> ingredientsToTake;
-unordered_set<string> ingredientsNotToTake;
+set<string> ingredientsToTake;
+set<string> ingredientsNotToTake;
 int maxCustomers = 0;
 
 // Prints the table with points of every ingredient.
@@ -27,7 +29,7 @@ void outputTable(unordered_map<string, int> ingredient_positive,
     cout << "\n";
 }
 
-void includeIngredients(unordered_set<string> &ingredientsToTakeSet, unordered_map<string, int> ingredient_negative)
+void includeIngredients(set<string> &ingredientsToTakeSet, unordered_map<string, int> ingredient_negative)
 {
     for (unordered_map<string, int>::iterator i = ingredient_negative.begin(); i != ingredient_negative.end(); i++)
     {
@@ -38,7 +40,7 @@ void includeIngredients(unordered_set<string> &ingredientsToTakeSet, unordered_m
     }
 }
 
-void excludeIngredients(unordered_set<string> &ingredientsNotToTakeSet, unordered_map<string, int> ingredient_positive)
+void excludeIngredients(set<string> &ingredientsNotToTakeSet, unordered_map<string, int> ingredient_positive)
 {
     for (unordered_map<string, int>::iterator i = ingredient_positive.begin(); i != ingredient_positive.end(); i++)
     {
@@ -49,7 +51,7 @@ void excludeIngredients(unordered_set<string> &ingredientsNotToTakeSet, unordere
     }
 }
 
-void resetPointing(string ingredientNow, unordered_set<string> &ingredientsToInclude, unordered_set<string> &ingredientsToExclude, unordered_map<string, int> &ingredient_total, unordered_map<string, int> &ingredient_positive, unordered_map<string, int> &ingredient_negative, set<int> &customersIneligible, int *customerCount, vector<string> customer_likes[], vector<string> customer_dislikes[])
+void resetPointing(string ingredientNow, set<string> &ingredientsToInclude, set<string> &ingredientsToExclude, unordered_map<string, int> &ingredient_total, unordered_map<string, int> &ingredient_positive, unordered_map<string, int> &ingredient_negative, set<int> &customersIneligible, int *customerCount, vector<string> customer_likes[], vector<string> customer_dislikes[])
 {
     for (int i = 0; i < customers; i++)
     {
@@ -83,7 +85,7 @@ void resetPointing(string ingredientNow, unordered_set<string> &ingredientsToInc
     excludeIngredients(ingredientsToExclude, ingredient_positive);
 }
 
-void countCustomers(unordered_set<string> ingredientsToInclude, vector<string> customer_likes[], vector<string> customer_dislikes[], int customerCount, set<int> customersIneligible)
+void countCustomers(set<string> ingredientsToInclude, vector<string> customer_likes[], vector<string> customer_dislikes[], int customerCount, set<int> customersIneligible)
 {
     int count = 0;
     for (int i = 0; i < customers; i++)
@@ -126,16 +128,23 @@ void countCustomers(unordered_set<string> ingredientsToInclude, vector<string> c
         }
     }
 
+    // dp[ingredientsToInclude] = count;
+
     if (count > maxCustomers)
     {
         maxCustomers = count;
-        unordered_set<string>::iterator itr1;
+        cout << "mac customers: " << maxCustomers << '\n';
+        set<string>::iterator itr1;
         copy(ingredientsToInclude.begin(), ingredientsToInclude.end(), inserter(ingredientsToTake, itr1));
     }
 }
 
-void solutionWithout0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, unordered_set<string> ingredientsToInclude, unordered_set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
+void solutionWithout0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, set<string> ingredientsToInclude, set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
 {
+    // if (dp.find(ingredientsToInclude) != dp.end())
+    // {
+    //     return;
+    // }
 
     if (ingredientNow != "")
     {
@@ -148,6 +157,7 @@ void solutionWithout0(string ingredientNow, unordered_map<string, int> ingredien
     {
         return;
     }
+    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
 
     for (unordered_map<string, int>::iterator i = ingredient_total.begin(); i != ingredient_total.end(); i++)
     {
@@ -160,15 +170,17 @@ void solutionWithout0(string ingredientNow, unordered_map<string, int> ingredien
 
         solutionWithout0(ingredient, ingredient_positive, ingredient_negative, ingredient_total, customersIneligible, customerCount, ingredientsToInclude, ingredientsToExclude, customer_likes, customer_dislikes);
     }
-
-    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
 }
 
 // code can be optimized with:
 // 1. using DP
 // 2. sorting total points map and using highest point first.
-void solutionWith0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, unordered_set<string> ingredientsToInclude, unordered_set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
+void solutionWith0(string ingredientNow, unordered_map<string, int> ingredient_positive, unordered_map<string, int> ingredient_negative, unordered_map<string, int> ingredient_total, set<int> customersIneligible, int customerCount, set<string> ingredientsToInclude, set<string> ingredientsToExclude, vector<string> customer_likes[], vector<string> customer_dislikes[])
 {
+    // if (dp.find(ingredientsToInclude) != dp.end())
+    // {
+    //     return;
+    // }
 
     if (ingredientNow != "")
     {
@@ -181,6 +193,7 @@ void solutionWith0(string ingredientNow, unordered_map<string, int> ingredient_p
     {
         return;
     }
+    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
 
     for (unordered_map<string, int>::iterator i = ingredient_total.begin(); i != ingredient_total.end(); i++)
     {
@@ -193,16 +206,14 @@ void solutionWith0(string ingredientNow, unordered_map<string, int> ingredient_p
 
         solutionWith0(ingredient, ingredient_positive, ingredient_negative, ingredient_total, customersIneligible, customerCount, ingredientsToInclude, ingredientsToExclude, customer_likes, customer_dislikes);
     }
-
-    countCustomers(ingredientsToInclude, customer_likes, customer_dislikes, customerCount, customersIneligible);
 }
 
 int main()
 {
     ifstream input;
-    input.open("input_4.txt");
+    input.open("input_1.txt");
     ofstream output;
-    output.open("output_4.txt");
+    output.open("output_1.txt");
 
     input >> customers;
 
@@ -246,15 +257,13 @@ int main()
         }
     }
 
-    // outputTable(ingredient_positive, ingredient_negative, ingredient_points);
-
     includeIngredients(ingredientsToTake, ingredient_negative);
     excludeIngredients(ingredientsNotToTake, ingredient_positive);
 
-    unordered_set<string> tempIngredientsToInclude;
-    unordered_set<string> tempIngredientsToExclude;
-    unordered_set<string>::iterator itr1;
-    unordered_set<string>::iterator itr2;
+    set<string> tempIngredientsToInclude;
+    set<string> tempIngredientsToExclude;
+    set<string>::iterator itr1;
+    set<string>::iterator itr2;
 
     copy(ingredientsToTake.begin(), ingredientsToTake.end(), inserter(tempIngredientsToInclude, itr1));
     copy(ingredientsNotToTake.begin(), ingredientsNotToTake.end(), inserter(tempIngredientsToExclude, itr2));
@@ -266,7 +275,7 @@ int main()
 
     cout << "\nMaximum customers: " << maxCustomers << "\n";
     output << ingredientsToTake.size();
-    for (unordered_set<string>::iterator i = ingredientsToTake.begin(); i != ingredientsToTake.end(); i++)
+    for (set<string>::iterator i = ingredientsToTake.begin(); i != ingredientsToTake.end(); i++)
     {
         output << " " << *i;
     }
