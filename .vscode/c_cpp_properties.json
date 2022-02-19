@@ -1,18 +1,40 @@
+//For optimization with ORTools
+// {
+//     "configurations": [
+//         {
+//             "name": "Mac",
+//             "includePath": [
+//                 "${workspaceFolder}/**"
+//             ],
+//             "defines": [],
+//             "macFrameworkPath": [
+//                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+//             ],
+//             "compilerPath": "/usr/bin/clang",
+//             "cStandard": "c17",
+//             "cppStandard": "c++17",
+//             "intelliSenseMode": "macos-clang-arm64"
+//         }
+//     ],
+//     "version": 4
+// }
+//For normal programming
 {
     "configurations": [
         {
-            "name": "Mac",
+            "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "defines": [],
-            "macFrameworkPath": [
-                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
             ],
-            "compilerPath": "/usr/bin/clang",
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Program Files (x86)/mingw-w64/i686-8.1.0-posix-dwarf-rt_v6-rev0/mingw32/bin/g++.exe",
             "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "macos-clang-arm64"
+            "intelliSenseMode": "windows-gcc-x64"
         }
     ],
     "version": 4
